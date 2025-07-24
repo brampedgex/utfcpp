@@ -183,6 +183,12 @@ namespace utf8
         return utf8::next(it, end);
     }
 
+    template <typename word_iterator>
+    utfchar32_t peek_next16(word_iterator it, word_iterator end)
+    {
+        return utf8::next16(it, end);
+    }
+
     template <typename octet_iterator>
     utfchar32_t prior(octet_iterator& it, octet_iterator start)
     {
@@ -196,6 +202,23 @@ namespace utf8
             if (it == start)
                 throw invalid_utf8(*it); // error - no lead byte in the sequence
         return utf8::peek_next(it, end);
+    }
+
+    template <typename word_iterator>
+    utfchar32_t prior16(word_iterator& it, word_iterator start)
+    {
+        if (it == start)
+            throw not_enough_room();
+
+        word_iterator end = it;
+
+        if (utf8::internal::is_trail_surrogate(*(--it))) {
+            if (it == start)
+                throw invalid_utf16(*it);
+            --it;
+        }
+
+        return utf8::peek_next16(it, end);
     }
 
     template <typename octet_iterator, typename distance_type>
